@@ -1,16 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import FundCard from './FundCard';
 import { loader } from '../assets';
 
-const DisplayCampaigns = ({ title, isLoading, campaigns, isAuthenticated }) => {
-  const navigate = useNavigate();
-
-  const handleNavigate = (campaign) => {
-    navigate(`/campaign-details/${campaign.title}`, { state: campaign });
-  };
-
+const DisplayCampaigns = ({ title, isLoading, campaigns, emptyListMessage, renderCard }) => {
   return (
     <div>
       <h1 className="font-epilogue font-semibold text-[18px] text-white text-left">
@@ -24,21 +15,11 @@ const DisplayCampaigns = ({ title, isLoading, campaigns, isAuthenticated }) => {
 
         {!isLoading && campaigns.length === 0 && (
           <p className="font-epilogue font-semibold text-[14px] leading-[30px] text-[#818183]">
-            {isAuthenticated
-              ? 'You have not created any campigns yet'
-              : 'Connect your Metamask wallet to access your created crowdfunding campaigns.'}
+            {emptyListMessage}
           </p>
         )}
 
-        {!isLoading &&
-          campaigns.length > 0 &&
-          campaigns.map((campaign) => (
-            <FundCard
-              key={campaign.pId}
-              {...campaign}
-              handleClick={() => handleNavigate(campaign)}
-            />
-          ))}
+        {!isLoading && campaigns.length > 0 && campaigns.map((campaign) => renderCard(campaign))}
       </div>
     </div>
   );

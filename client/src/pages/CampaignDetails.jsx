@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ethers } from 'ethers';
+import { toast } from 'react-toastify';
 
 import { useStateContext } from '../context';
 import { CountBox, CustomButton, Loader } from '../components';
@@ -10,7 +10,8 @@ import { user } from '../assets';
 const CampaignDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { donate, getDonations, getCampaignsParticularUser, contract, address } = useStateContext();
+  const { donate, getDonations, getCampaignsParticularUser, contract, address, refundDonators } =
+    useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState('');
@@ -38,12 +39,29 @@ const CampaignDetails = () => {
   }, [contract, address]);
 
   const handleDonate = async () => {
+    if (!amount || amount <= 0 || amount === '') {
+      return toast.error('Please enter amount to donate');
+    }
+
     try {
       setIsLoading(true);
       await donate(state.pId, amount);
       navigate('/');
+      toast.success('Thanks for donating!');
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRefund = async () => {
+    try {
+      setIsLoading(true);
+      await refundDonators(state.pId);
+      toast.success('Refunded successfully!');
+    } catch (error) {
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +98,7 @@ const CampaignDetails = () => {
 
       <div className="mt-[60px] flex lg:flex-row flex-col gap-5">
         <div className="flex-[2] flex flex-col gap-[40px]">
-          <div>
+          <div className="flex flex-col">
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
               Creator
             </h4>
@@ -100,6 +118,15 @@ const CampaignDetails = () => {
                 </p>
               </div>
             </div>
+
+            {address === state.owner && (
+              <CustomButton
+                btnType="button"
+                title="Stop Campaign & Refund Backers"
+                styles="bg-red-500 w-fit mt-[20px]"
+                handleClick={handleRefund}
+              />
+            )}
           </div>
 
           <div>

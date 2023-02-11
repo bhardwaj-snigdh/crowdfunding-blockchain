@@ -10,12 +10,12 @@ contract CrowdFunding {
         uint256 deadline;
         uint256 amountCollected;
         string image;
+        bool isActive;
         address[] donators;
         uint256[] donations;
     }
 
     uint256 public numberOfCampaigns = 0;
-
     mapping(uint256 => Campaign) public campaigns;
 
     event CampaignCreate(
@@ -24,8 +24,9 @@ contract CrowdFunding {
         string title,
         uint256 target
     );
-
     event CampaignDonation(uint256 campaignId, address donator, uint256 amount);
+    event FundsWithdraw(uint256 campaignId, address owner, uint256 amount);
+    event CampaignRefund(uint256 campaignId, address owner, uint256 amount);
 
     function createCampaign(
         address _owner,
@@ -34,13 +35,13 @@ contract CrowdFunding {
         uint256 _target,
         uint256 _deadline,
         string calldata _image
-    ) public returns (uint256) {
+    ) external returns (uint256) {
         Campaign storage campaign = campaigns[numberOfCampaigns];
 
         require(_target > 0, "Target amount must be greater than zero.");
 
         require(
-            campaign.deadline < block.timestamp,
+            _deadline > block.timestamp,
             "The deadline should be a date in the future."
         );
 
@@ -51,6 +52,7 @@ contract CrowdFunding {
         campaign.deadline = _deadline;
         campaign.amountCollected = 0;
         campaign.image = _image;
+        campaign.isActive = true;
 
         numberOfCampaigns++;
 
@@ -59,7 +61,7 @@ contract CrowdFunding {
         return numberOfCampaigns - 1;
     }
 
-    function donateToCampaign(uint256 _id) public payable {
+    function donateToCampaign(uint256 _id) external payable {
         uint256 amount = msg.value;
         address donator = msg.sender;
 
@@ -68,20 +70,55 @@ contract CrowdFunding {
 
         Campaign storage campaign = campaigns[_id];
 
-        require(
-            amount + campaign.amountCollected <= campaign.target,
-            "Donation amount will exceed the campaign target amount."
-        );
+        require(campaign.isActive, "Campaign is inactive.");
 
         campaign.donators.push(donator);
         campaign.donations.push(amount);
 
-        (bool sent, ) = payable(campaign.owner).call{value: amount}("");
+        emit CampaignDonation(_id, donator, amount);
+        campaign.amountCollected += amount;
+    }
+
+    function withdrawFunds(uint256 _id) external {
+        require(_id < numberOfCampaigns, "Requied campaign does not exists.");
+
+        Campaign storage campaign = campaigns[_id];
+
+        require(campaign.isActive, "Campaign is inactive.");
+        require(
+            msg.sender == campaign.owner,
+            "Only campaign creator can withdraw funds."
+        );
+        require(
+            campaign.amountCollected == campaign.target,
+            "Funds can only be withdrawn after target completion."
+        );
+
+        bool sent = payable(campaign.owner).send(campaign.target);
 
         if (sent) {
-            emit CampaignDonation(_id, donator, amount);
-            campaign.amountCollected = campaign.amountCollected + amount;
+            emit FundsWithdraw(_id, campaign.owner, campaign.target);
+            campaign.isActive = false;
         }
+    }
+
+    function refundDonators(uint256 _id) external {
+        require(_id < numberOfCampaigns, "Requied campaign does not exists.");
+
+        Campaign storage campaign = campaigns[_id];
+
+        require(
+            msg.sender == campaign.owner,
+            "Only campaign creator can initiate refunds."
+        );
+        require(campaign.isActive, "Campaign is inactive.");
+
+        for (uint256 i = 0; i < campaign.donators.length; i++) {
+            payable(campaign.donators[i]).transfer(campaign.donations[i]);
+        }
+
+        campaign.isActive = false;
+        emit CampaignRefund(_id, campaign.owner, campaign.amountCollected);
     }
 
     function getDonators(

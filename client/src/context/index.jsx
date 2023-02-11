@@ -12,28 +12,23 @@ import { ethers } from 'ethers';
 const StateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0x516F2A2230bEdef522e0831533913043aFdF1c37');
+  const { contract } = useContract('0xbE0D0Ab769A17AF684A670674591009eAB0681c1');
   const { mutateAsync: createCampaign } = useContractWrite(contract, 'createCampaign');
-
   const address = useAddress();
   const connect = useMetamask();
   const disconnect = useDisconnect();
 
   const publishCampaign = async (form) => {
-    try {
-      const data = await createCampaign([
-        address, // owner
-        form.title, // title
-        form.description, // description
-        form.target,
-        new Date(form.deadline).getTime(), // deadline,
-        form.image,
-      ]);
+    const data = await createCampaign([
+      address, // owner
+      form.title, // title
+      form.description, // description
+      form.target,
+      new Date(form.deadline).getTime(), // deadline,
+      form.image,
+    ]);
 
-      console.log('contract call success', data);
-    } catch (error) {
-      console.log('contract call failure', error);
-    }
+    return data;
   };
 
   const getCampaigns = async () => {
@@ -47,6 +42,7 @@ export const StateContextProvider = ({ children }) => {
       deadline: campaign.deadline.toNumber(),
       amountCollected: ethers.utils.formatEther(campaign.amountCollected.toString()),
       image: campaign.image,
+      isActive: campaign.isActive,
       pId: i,
     }));
 
@@ -93,6 +89,18 @@ export const StateContextProvider = ({ children }) => {
     return parsedDonations;
   };
 
+  const withdrawFunds = async (pId) => {
+    const data = await contract.call('withdrawFunds', [pId]);
+
+    return data;
+  };
+
+  const refundDonators = async (pId) => {
+    const data = await contract.call('refundDonators', [pId]);
+
+    return data;
+  };
+
   return (
     <StateContext.Provider
       value={{
@@ -106,6 +114,8 @@ export const StateContextProvider = ({ children }) => {
         getCampaignsParticularUser,
         donate,
         getDonations,
+        withdrawFunds,
+        refundDonators,
       }}
     >
       {children}

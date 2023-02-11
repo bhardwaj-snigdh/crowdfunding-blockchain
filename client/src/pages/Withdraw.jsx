@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
-import { DisplayCampaigns, FundCard } from '../components';
+import { DisplayCampaigns, WithdrawCard } from '../components';
 import { useStateContext } from '../context';
 
-const Profile = () => {
+const Withdraw = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [campaigns, setCampaigns] = useState([]);
 
@@ -30,9 +30,10 @@ const Profile = () => {
       }
       isLoading={isLoading}
       campaigns={campaigns}
-      renderCard={(campaign) => <FundCard key={campaign.pId} campaign={campaign} />}
+      isAuthenticated={address !== undefined}
+      renderCard={(campaign) => <WithdrawCard key={campaign.pId} campaign={campaign} />}
     />
   );
 };
 
-export default Profile;
+export default Withdraw;

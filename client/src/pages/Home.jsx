@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { DisplayCampaigns } from '../components';
+import { DisplayCampaigns, FundCard } from '../components';
 import { useStateContext } from '../context';
 
 const Home = () => {
@@ -20,7 +20,15 @@ const Home = () => {
     if (contract) fetchCampaigns();
   }, [address, contract]);
 
-  return <DisplayCampaigns title="All Campaigns" isLoading={isLoading} campaigns={campaigns} />;
+  return (
+    <DisplayCampaigns
+      title="All Campaigns"
+      emptyListMessage="There are no active campaigns at the moment."
+      isLoading={isLoading}
+      campaigns={campaigns}
+      renderCard={(campaign) => <FundCard key={campaign.pId} campaign={campaign} />}
+    />
+  );
 };
 
 export default Home;

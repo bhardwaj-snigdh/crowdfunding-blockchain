@@ -6,6 +6,7 @@ import { useStateContext } from '../context';
 import { money } from '../assets';
 import { CustomButton, FormField, Loader } from '../components';
 import { checkIfImage } from '../utils';
+import { toast } from 'react-toastify';
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -28,14 +29,21 @@ const CreateCampaign = () => {
     e.preventDefault();
 
     checkIfImage(form.image, async (exists) => {
-      if (exists) {
+      if (!exists) {
+        toast.error('Please enter a valid image URL');
+        setForm({ ...form, image: '' });
+        return;
+      }
+
+      try {
         setIsLoading(true);
         await createCampaign({ ...form, target: ethers.utils.parseUnits(form.target, 18) });
         setIsLoading(false);
+        toast.success('Campaign created successfully');
         navigate('/');
-      } else {
-        alert('Provide valid image URL');
-        setForm({ ...form, image: '' });
+      } catch (err) {
+        setIsLoading(false);
+        toast.error(err.message);
       }
     });
   };
@@ -86,7 +94,7 @@ const CreateCampaign = () => {
           <FormField
             labelName="Goal *"
             placeholder="ETH 0.50"
-            inputType="text"
+            inputType="number"
             value={form.target}
             handleChange={(e) => handleFormFieldChange('target', e)}
           />

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useStateContext } from '../context';
 
 const Logout = () => {
@@ -12,6 +13,7 @@ const Logout = () => {
       navigate('/');
     } catch (err) {
       console.log('Unable to log out', err.message);
+      toast.error('Unable to log out');
       navigate(-1);
     }
   };
