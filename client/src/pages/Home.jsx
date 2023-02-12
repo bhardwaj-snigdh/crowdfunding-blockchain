@@ -19,7 +19,7 @@ const Home = () => {
     const activeCampaigns = data.filter((campaign) => campaign.isActive);
 
     if (searchQuery && searchQuery.length > 0) {
-      const filteredCampaigns = searchThroughCampaigns(campaigns, searchQuery);
+      const filteredCampaigns = searchThroughCampaigns(activeCampaigns, searchQuery);
       setCampaigns(filteredCampaigns);
     } else {
       setCampaigns(activeCampaigns);
@@ -30,7 +30,7 @@ const Home = () => {
 
   useEffect(() => {
     if (contract) fetchCampaigns();
-  }, [address, contract, searchQuery]);
+  }, [address, contract]);
 
   return (
     <DisplayCampaigns
