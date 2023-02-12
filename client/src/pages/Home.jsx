@@ -30,7 +30,7 @@ const Home = () => {
 
   useEffect(() => {
     if (contract) fetchCampaigns();
-  }, [address, contract]);
+  }, [address, contract, searchQuery]);
 
   return (
     <DisplayCampaigns

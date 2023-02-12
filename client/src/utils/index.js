@@ -25,11 +25,9 @@ export const checkIfImage = (url, callback) => {
 
 export const searchThroughCampaigns = (campaigns, query) => {
   const fuse = new Fuse(campaigns, {
-    keys: [
-      { name: 'title', weight: 0.7 },
-      { name: 'description', weight: 0.3 },
-    ],
+    keys: ['title', 'description'],
     shouldSort: true,
+    threshold: 0.7,
   });
 
   const results = fuse.search(query);
