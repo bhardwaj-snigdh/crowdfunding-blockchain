@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { createSearchParams, Link, useNavigate } from 'react-router-dom';
 
 import { useStateContext } from '../context';
 import { CustomButton } from './';
@@ -10,21 +10,39 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState('dashboard');
   const [toggleDrawer, setToggleDrawer] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { connect, address } = useStateContext();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    if (searchQuery && searchQuery.length > 0) {
+      navigate({
+        pathname: '/',
+        search: createSearchParams({ query: searchQuery }).toString(),
+      });
+      setSearchQuery('');
+    }
+  };
 
   return (
     <div className="flex md:flex-row flex-col-reverse justify-between mb-[35px] gap-6">
-      <div className="lg:flex-1 flex flex-row max-w-[458px] py-2 pl-4 pr-2 h-[52px] bg-[#1c1c24] rounded-[100px]">
+      <form
+        onSubmit={handleSearch}
+        className="lg:flex-1 flex flex-row max-w-[458px] py-2 pl-4 pr-2 h-[52px] bg-[#1c1c24] rounded-[100px]"
+      >
         <input
           type="text"
           placeholder="Search for campaigns"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="flex w-full font-epilogue font-normal text-[14px] placeholder:text-[#4b5264] text-white bg-transparent outline-none"
         />
 
-        <div className="w-[72px] h-full rounded-[20px] bg-[#4acd8d] flex justify-center items-center cursor-pointer">
+        <button className="w-[72px] h-full rounded-[20px] bg-[#4acd8d] flex justify-center items-center cursor-pointer">
           <img src={search} alt="search" className="w-[15px] h-[15px] object-contain" />
-        </div>
-      </div>
+        </button>
+      </form>
 
       <div className="sm:flex hidden flex-row justify-end gap-4">
         <CustomButton

@@ -1,3 +1,5 @@
+import Fuse from 'fuse.js';
+
 export const daysLeft = (deadline) => {
   const difference = new Date(deadline).getTime() - Date.now();
   const remainingDays = difference / (1000 * 3600 * 24);
@@ -19,4 +21,18 @@ export const checkIfImage = (url, callback) => {
 
   img.onload = () => callback(true);
   img.onerror = () => callback(false);
+};
+
+export const searchThroughCampaigns = (campaigns, query) => {
+  const fuse = new Fuse(campaigns, {
+    keys: [
+      { name: 'title', weight: 0.7 },
+      { name: 'description', weight: 0.3 },
+    ],
+    shouldSort: true,
+  });
+
+  const results = fuse.search(query);
+
+  return results.map((result) => result.item);
 };

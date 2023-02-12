@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { DisplayCampaigns, FundCard } from '../components';
 import { useStateContext } from '../context';
+import { searchThroughCampaigns } from '../utils';
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [campaigns, setCampaigns] = useState([]);
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('query');
 
   const { address, contract, getCampaigns } = useStateContext();
 
@@ -13,15 +17,20 @@ const Home = () => {
     setIsLoading(true);
     const data = await getCampaigns();
     const activeCampaigns = data.filter((campaign) => campaign.isActive);
-    setCampaigns(activeCampaigns);
+
+    if (searchQuery && searchQuery.length > 0) {
+      const filteredCampaigns = searchThroughCampaigns(campaigns, searchQuery);
+      setCampaigns(filteredCampaigns);
+    } else {
+      setCampaigns(activeCampaigns);
+    }
+
     setIsLoading(false);
   };
 
   useEffect(() => {
     if (contract) fetchCampaigns();
-  }, [address, contract]);
-
-  console.log({ campaigns });
+  }, [address, contract, searchQuery]);
 
   return (
     <DisplayCampaigns
