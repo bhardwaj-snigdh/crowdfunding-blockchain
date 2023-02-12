@@ -12,7 +12,8 @@ const Withdraw = () => {
   const fetchCampaigns = async () => {
     setIsLoading(true);
     const data = await getUserCampaigns();
-    setCampaigns(data);
+    const activeCampaigns = data.filter((campaign) => campaign.isActive);
+    setCampaigns(activeCampaigns);
     setIsLoading(false);
   };
 
@@ -30,7 +31,6 @@ const Withdraw = () => {
       }
       isLoading={isLoading}
       campaigns={campaigns}
-      isAuthenticated={address !== undefined}
       renderCard={(campaign) => <WithdrawCard key={campaign.pId} campaign={campaign} />}
     />
   );

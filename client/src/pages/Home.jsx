@@ -12,13 +12,16 @@ const Home = () => {
   const fetchCampaigns = async () => {
     setIsLoading(true);
     const data = await getCampaigns();
-    setCampaigns(data);
+    const activeCampaigns = data.filter((campaign) => campaign.isActive);
+    setCampaigns(activeCampaigns);
     setIsLoading(false);
   };
 
   useEffect(() => {
     if (contract) fetchCampaigns();
   }, [address, contract]);
+
+  console.log({ campaigns });
 
   return (
     <DisplayCampaigns

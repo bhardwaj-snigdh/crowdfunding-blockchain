@@ -1,3 +1,4 @@
+import archive from './archive.svg';
 import createCampaign from './create-campaign.svg';
 import dashboard from './dashboard.svg';
 import logo from './logo.svg';
@@ -11,10 +12,12 @@ import search from './search.svg';
 import menu from './menu.svg';
 import money from './money.svg';
 import loader from './loader.svg';
+import inactiveTag from './inactive-campaign-tag.svg';
 import thirdweb from './thirdweb.png';
 import user from './user.png';
 
 export {
+  archive,
   tagType,
   createCampaign,
   dashboard,
@@ -30,4 +33,5 @@ export {
   loader,
   thirdweb,
   user,
+  inactiveTag,
 };

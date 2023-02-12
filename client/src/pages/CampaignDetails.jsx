@@ -18,7 +18,7 @@ const CampaignDetails = () => {
   const [donators, setDonators] = useState([]);
   const [creatorTotalCampaigns, setCreatorTotalCampaigns] = useState(0);
 
-  const remainingDays = daysLeft(state.deadline);
+  const remainingDays = state.isActive ? daysLeft(state.deadline) : '0';
 
   const fetchDonators = async () => {
     const data = await getDonations(state.pId);
@@ -39,6 +39,10 @@ const CampaignDetails = () => {
   }, [contract, address]);
 
   const handleDonate = async () => {
+    if (!state.isActive) {
+      return toast.info('Campaign is not active');
+    }
+
     if (!amount || amount <= 0 || amount === '') {
       return toast.error('Please enter amount to donate');
     }
@@ -119,13 +123,21 @@ const CampaignDetails = () => {
               </div>
             </div>
 
-            {address === state.owner && (
+            {address === state.owner && state.isActive && (
               <CustomButton
                 btnType="button"
                 title="Stop Campaign & Refund Backers"
                 styles="bg-red-500 w-fit mt-[20px]"
                 handleClick={handleRefund}
               />
+            )}
+
+            {!state.isActive && (
+              <div className="mt-[24px]">
+                <h4 className="font-epilogue font-semibold text-[20px] text-white text-center">
+                  Campaign is not active!!!
+                </h4>
+              </div>
             )}
           </div>
 
@@ -197,7 +209,7 @@ const CampaignDetails = () => {
               <CustomButton
                 btnType="button"
                 title="Fund Campaign"
-                styles="w-full bg-[#8c6dfd]"
+                styles={`w-full bg-[#8c6dfd] ${!state.isActive && 'grayscale cursor-not-allowed'}`}
                 handleClick={handleDonate}
               />
             </div>

@@ -4,3 +4,4 @@ export { default as CreateCampaign } from './CreateCampaign';
 export { default as CampaignDetails } from './CampaignDetails';
 export { default as Logout } from './Logout';
 export { default as Withdraw } from './Withdraw';
+export { default as InactiveCampaigns } from './InactiveCampaigns';
